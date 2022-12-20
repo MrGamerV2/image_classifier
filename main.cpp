@@ -7,26 +7,11 @@
 int main()
 {
     Timer timer;
+    std::string ImagePath1{"NULL"}, ImagePath2{"NULL"};
 
-    std::string image_path = interpolation("data\\mnist", "train", "7");
     float img[IMAGE_SIZE][IMAGE_SIZE];
-
-    load_image(image_path, 100, img);
-
-    for (int i = 0; i < IMAGE_SIZE; i++)
-    {
-        for (int j = 0; j < IMAGE_SIZE; j++)
-        {
-            std::cout << img[i][j] << " ";
-        }
-        std::cout << std::endl;
-    }
-
-    // system("pause");
-
-
+    float ValuesPic1[32]{0}, ValuesPic2[32]{0};
     int action;
-
     while (1)
     {
         // system("color B0");
@@ -37,39 +22,37 @@ int main()
         switch (action)
         {
         case 1:
-            clear_screen();
-            explore_menu();
-            continue;
+            explore_menu(&ImagePath1, &ImagePath2);
             break;
         case 2:
-            clear_screen();
-            train_menu();
-            continue;
+            train_menu(ValuesPic1, ValuesPic2, img);
             break;
         case 3:
-            clear_screen();
             test_menu();
-            continue;
             break;
         case 4:
             clear_screen();
             info_print();
             std::cin.get();
             std::cin.ignore(10000, '\n');
-            continue;
+            break;
+        case 5:
+            FunctionTesting_menu();
             break;
         case 0:
             return 0;
         default:
             if (action != -1)
             {
-                std::cout << "!!  Wrong Input  !! \n";
+                //  // std::cout << "!!  Wrong Input  !! \n";
+                printf("!!  Wrong Input  !! \n");
                 std::cin.get();
                 std::cin.get();
             }
             else
             {
-                std::cout << "!!  Wrong Input  !! \n";
+                //  // std::cout << "!!  Wrong Input  !! \n";
+                printf("!!  Wrong Input  !! \n");
                 std::cin.get();
             }
 
