@@ -2,37 +2,36 @@
 // Contact: Iliya.gbm@gmail.com
 
 #include "utils\\utils.hpp"
-#include "utils\\timer.hpp"
 
 int main()
 {
-    Timer timer;
-    std::string ImagePath1{"NULL"}, ImagePath2{"NULL"};
+    // Timer timer;
 
     float img[IMAGE_SIZE][IMAGE_SIZE];
-    float ValuesPic1[32]{0}, ValuesPic2[32]{0};
+    TrainSet Trainsets[10]; 
     int action;
+
     while (1)
     {
         // system("color B0");
-        clear_screen();
-        start_menu_print();
+        ClearScreen();
+        StartMenu_print();
         std::cin >> action;
         action = CheckInput(action);
         switch (action)
         {
         case 1:
-            explore_menu(&ImagePath1, &ImagePath2);
+            ExploreMenu(img);
             break;
         case 2:
-            train_menu(ValuesPic1, ValuesPic2, img);
+            TrainMenu(Trainsets, img);
             break;
         case 3:
-            test_menu();
+            TestMenu(img);
             break;
         case 4:
-            clear_screen();
-            info_print();
+            ClearScreen();
+            Info_print();
             std::cin.get();
             std::cin.ignore(10000, '\n');
             break;

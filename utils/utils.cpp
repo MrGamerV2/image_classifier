@@ -1,6 +1,6 @@
 #include "utils.hpp"
 
-void load_image(std::string image_path, int index, float image[IMAGE_SIZE][IMAGE_SIZE])
+void ImageLoad(std::string image_path, int index, float image[IMAGE_SIZE][IMAGE_SIZE])
 {
     // cv::Mat matrix = cv::imread(image_path, cv::IMREAD_GRAYSCALE);
     // cv::Mat converted_matrix;
@@ -48,31 +48,19 @@ int file_count(std::string path)
     return file_size / IMAGE_BUFFER_SIZE;
 }
 
-//         My Functions
+//         PRINTING CENTER
 
-void clear_screen()
+void Info_print()
 {
-#ifdef _WIN32
-    system("cls");
-#else
-    system("clear");
-#endif
+    std::cout << "\n The scope of this program is to detect a number in the given image(Image should be grayscaled and in 28x28 pixels.) \n \n"
+              << " Programmer: Ilya.M \n\n"
+              << " Contact Email: Iliya.gbm@gmail.com \n \n"
+              << " Press Enter to go back.";
 }
 
-int CheckInput(int opt)
+void StartMenu_print()
 {
-    if (std::cin.fail())
-    {
-        std::cin.clear();
-        std::cin.ignore(10000, '\n');
-        opt = -1;
-    }
-    return opt;
-}
-
-void start_menu_print()
-{
-    std::cout << "\n    ||        Main Actions      ||\n\n"
+    std::cout << "\n    ||        Main Actions        ||\n\n"
               << " 1 - Explore images from dataset \n\n"
               << " 2 - Train \n\n"
               << " 3 - Test \n\n"
@@ -83,98 +71,130 @@ void start_menu_print()
               << ">> ";
 }
 
-void info_print()
+void ExploreMenu_print(int *Label, int *PicNum)
 {
-    std::cout << "\n The scope of this program is to detect a number in the given image(Image should be grayscaled and in 28x28 pixels.) \n \n"
-              << " Programmer: Ilya.M \n\n"
-              << " Contact Email: Iliya.gbm@gmail.com \n \n"
-              << " Press Enter to go back.";
-}
-
-void explore_menu_print(std::string *imgP1, std::string *imgP2)
-{
-    std::cout << "\n Image Path #1:   " << *imgP1 << "\n"
-              << " Image Path #2:   " << *imgP2 << "\n\n"
-              << " 1 - Image Path #1\n\n"
-              << " 2 - Image Path #2\n\n"
-              << " 3 - Reset Image Path\n\n"
+    std::cout << "\n   ||   Exploring DataSet   ||\n\n"
+              << " 1 - Show Image\n\n"
+              << " 2 - Label\n\n"
+              << " 3 - Picture Number\n\n"
               << " 0 - Return\n\n"
+              << " # Label:   " << *Label << "\n"
+              << " # PicNum:  " << *PicNum << "\n\n"
               << ">> ";
 }
 
 void FunctionTesting_menu_print()
 {
-    std::cout << "\n 1 - Average of 7 By 7 Marix\n\n"
+    std::cout << "\n   ||   Function Testing   ||\n\n"
+              << " 1 - Average of 7 By 7 Marix\n\n"
               << " 2 - Std of 7 By 7 Matrix\n\n"
               << " 3 - Arry / Arry Distance Calculator\n\n"
-            //   << " 4 - Arry / Matrix Distance Calculator\n\n"
+              //   << " 4 - Arry / Matrix Distance Calculator\n\n"
               << " 0 - Return\n\n"
               << ">>  ";
 }
 
-void train_menu_print(float ValueP1[32], float ValueP2[32])
+void TrainMenu_print()
 {
-    std::cout << "\n 1 - Store Values (Pic1).\n\n"
-              << " 2 - Store Values (Pic2)\n\n"
+    std::cout << "\n   ||   Training Program   ||\n\n"
+              << " 1 - Train Data Sets\n\n"
               << " 0 - Return\n\n"
-              << "\n Values #1: ";
-
-    std::cout << "\n Means:\n ";
-    for (int i = 0; i < 16; i++) // MEANs pic 1
-    {
-        std::cout << ValueP1[i] << " ";
-    }
-    std::cout << "\n Stds:\n ";
-    for (int i = 16; i < 32; i++) // STDs pic 1
-    {
-        std::cout << ValueP1[i] << " ";
-    }
-
-    std::cout << "\n\n Values #2: ";
-
-    std::cout << "\n Means:\n ";
-    for (int i = 0; i < 16; i++) // MEANs pic 2
-    {
-        std::cout << ValueP2[i] << " ";
-    }
-    std::cout << "\n Stds:\n ";
-    for (int i = 16; i < 32; i++) // STDs pic 2
-    {
-        std::cout << ValueP2[i] << " ";
-    }
-
-    printf("\n\n>> ");
+              << ">>  ";
 }
 
-void explore_menu(std::string *imgP1, std::string *imgP2)
+void TestMenu_print(int *Label, int *PicNum, float ImgFeatures[])
 {
+    std::cout << "\n   ||   Testing DataSet   ||\n\n"
+              << " 1 - Show Image\n\n"
+              << " 2 - Label\n\n"
+              << " 3 - Picture Number\n\n"
+              << " 4 - Test\n\n"
+              << " 0 - Return\n\n"
+              << " # Label:   " << *Label << "\n"
+              << " # PicNum:  " << *PicNum << "\n\n";
+
+    printf(" Image MEAN:\n ");
+    for (int i = 0; i < 16; i++)
+    {
+        std::cout << ImgFeatures[i] << ' ';
+    }
+    printf("\n Image STD:\n ");
+    for (int i = 0; i < 16; i++)
+    {
+        std::cout << ImgFeatures[i + 16] << ' ';
+    }
+
+    std::cout << "\n>> ";
+}
+
+//         MENU(S)
+
+void ExploreMenu(float img[][IMAGE_SIZE])
+{
+    int Label{-1}, PicNum{-1}, filecount;
     int subaction;
+    std::string image_path;
+
     while (1)
     {
-        clear_screen();
-        explore_menu_print(&*imgP1, &*imgP2);
-        //  // std::cin >> subaction;
-        scanf("%d", &subaction);
+        ClearScreen();
+        ExploreMenu_print(&Label, &PicNum);
+        std::cin >> subaction;
         subaction = CheckInput(subaction);
         switch (subaction)
         {
         case 1:
-            clear_screen();
-            std::cout << " Input Image path:\n\n"
-                      << ">>  ";
-            std::cin.ignore(10000, '\n');
-            std::getline(std::cin, *imgP1);
+            if (Label == -1 || PicNum == -1)
+            {
+                printf("\n Please select an image first..");
+                std::cin.get();
+                std::cin.get();
+            }
+            else
+            { // LOADING AND PRINTING IMAGE
+                ImageLoad(image_path, PicNum, img);
+                Image_print(img);
+
+                if (PicNum < filecount)
+                    ++PicNum;
+            }
             break;
         case 2:
-            clear_screen();
-            std::cout << " Input Image path:\n\n"
-                      << ">>  ";
+            std::cout << " Input Label (0 - 9):  ";
             std::cin.ignore(10000, '\n');
-            std::getline(std::cin, *imgP2);
+            std::cin >> Label;
+            if (Label < 0 || Label > 9)
+            {
+                std::cout << " !! Unavailable Label !!";
+                Label = -1;
+                std::cin.get();
+                std::cin.get();
+            }
+            image_path = interpolation("data\\mnist", "train", std::to_string(Label));
+            filecount = file_count(image_path) - 1;
             break;
         case 3:
-            *imgP1 = "NULL";
-            *imgP2 = "NULL";
+            if (Label == -1)
+            {
+                printf("\n Please Select Image Label first");
+                std::cin.get();
+                std::cin.get();
+            }
+            else
+            {
+                std::cout << " Input Picture Number (1 - "
+                          << filecount
+                          << "):  ";
+                std::cin.ignore(10000, '\n');
+                std::cin >> PicNum;
+                if (PicNum > filecount || PicNum < 0)
+                {
+                    std::cout << " !! Wrong Picture Number !!";
+                    PicNum = -1;
+                    std::cin.get();
+                    std::cin.get();
+                }
+            }
             break;
         case 0:
             return;
@@ -198,69 +218,34 @@ void explore_menu(std::string *imgP1, std::string *imgP2)
     }
 }
 
-void train_menu(float ValuesPic1[32], float ValuesPic2[32], float img[][IMAGE_SIZE])
+void TrainMenu(TrainSet Trainsets[], float img[][IMAGE_SIZE])
 {
     int subaction;
+    std::string image_path;
 
     while (1)
     {
-        clear_screen();
-        train_menu_print(ValuesPic1, ValuesPic2);
-        //  // std::cin >> subaction;
-        scanf("%d", &subaction);
+        ClearScreen();
+        TrainMenu_print();
+        std::cin >> subaction;
         subaction = CheckInput(subaction);
         switch (subaction)
         {
         case 1:
-        { // LOADING TRAIN SET ( PIC #1 )
-            std::string image_path = interpolation("data\\mnist", "train", "7");
+        { // LOADING TRAIN SET
 
-            load_image(image_path, 100, img);
-
-            for (int i = 0; i < IMAGE_SIZE; i++)
+            for (int i = 0; i < 10; i++)
             {
-                for (int j = 0; j < IMAGE_SIZE; j++)
+                image_path = interpolation("data\\mnist", "train", std::to_string(i));
+                Trainsets[i].Label = i;
+                for (int j = 0; j < IMAGE_DATA_LIMIT; j++)
                 {
-                    if (img[i][j] == 0)
-                        std::cout << " ";
-                    else
-                    {
-                        std::cout << '*';
-                    }
+                    ImageLoad(image_path, j, img);
+                    BreakDown(img, Trainsets[i].imgs[j]);
                 }
-                std::cout << std::endl;
             }
-            std::cin.get();
-            std::cin.get();
-
-        } // STORING VALUES INTO ARRY_#1
-            Break_Down(img, ValuesPic1);
             break;
-        case 2:
-        { // LOADING TEST SET ( PIC #2 )
-            std::string image_path = interpolation("data\\mnist", "test", "7");
-
-            load_image(image_path, 100, img);
-
-            for (int i = 0; i < IMAGE_SIZE; i++)
-            {
-                for (int j = 0; j < IMAGE_SIZE; j++)
-                {
-                    if (img[i][j] == 0)
-                        std::cout << " ";
-                    else
-                    {
-                        std::cout << '*';
-                    }
-                }
-                std::cout << std::endl;
-            }
-            std::cin.get();
-            std::cin.get();
-
-        } // STORING VALUES INTO ARRY_#2
-            Break_Down(img, ValuesPic2);
-            break;
+        }
         case 0:
             return;
         default:
@@ -283,27 +268,87 @@ void train_menu(float ValuesPic1[32], float ValuesPic2[32], float img[][IMAGE_SI
     }
 }
 
-void test_menu_print()
-{
-    std::cout << " Test function Incomplete\n\n"
-              << " 0 - Return\n"
-              << ">>  ";
-}
-
-void test_menu()
+void TestMenu(float img[IMAGE_SIZE][IMAGE_SIZE])
 {
     int subaction;
+    int Label{-1}, PicNum{-1}, filecount;
+    std::string image_path{""};
+    float ImageFeatures[32]{0};
+
     while (1)
     {
-        clear_screen();
-        test_menu_print();
-        //  // std::cin >> subaction;
-        scanf("%d", &subaction);
+        ClearScreen();
+        TestMenu_print(&Label, &PicNum, ImageFeatures);
+        std::cin >> subaction;
         subaction = CheckInput(subaction);
         switch (subaction)
         {
+        case 1:
+            if (Label == -1 || PicNum == -1)
+            {
+                printf("\n Please select an image first..");
+                std::cin.get();
+                std::cin.get();
+            }
+            else
+            { // LOADING AND PRINTING IMAGE
+                Image_print(img);
+            }
+            break;
+        case 2:
+            std::cout << " Input Label (0 - 9):  ";
+            std::cin.ignore(10000, '\n');
+            std::cin >> Label;
+            if (Label < 0 || Label > 9)
+            {
+                std::cout << " !! Unavailable Label !!";
+                Label = -1;
+                std::cin.get();
+                std::cin.get();
+            }
+            image_path = interpolation("data\\mnist", "train", std::to_string(Label));
+            filecount = file_count(image_path) - 1;
+            break;
+        case 3:
+            if (Label == -1)
+            {
+                printf("\n Please Select Image Label first");
+                std::cin.get();
+                std::cin.get();
+            }
+            else
+            {
+                std::cout << " Input Picture Number (1 - "
+                          << filecount
+                          << "):  ";
+                std::cin.ignore(10000, '\n');
+                std::cin >> PicNum;
+                if (PicNum > filecount || PicNum < 0)
+                {
+                    std::cout << " !! Wrong Picture Number !!";
+                    PicNum = -1;
+                    std::cin.get();
+                    std::cin.get();
+                }
+                else
+                    ImageLoad(image_path, PicNum, img);
+            }
+            break;
+        case 4:
+            if (Label == -1 || PicNum == -1)
+            {
+                printf("\n Please select an image first..");
+                std::cin.get();
+                std::cin.get();
+            }
+            else
+            {
+                BreakDown(img, ImageFeatures);
+            }
+            break;
         case 0:
             return;
+            break;
         default:
             if (subaction != -1)
             {
@@ -327,51 +372,50 @@ void test_menu()
 void FunctionTesting_menu()
 {
     int subaction;
-    float Matrix[8][7]{0};  // LAST ROW ACTS AS TEMP ARRY
+    float Matrix[8][7]{0}; // LAST ROW ACTS AS TEMP ARRY
     while (1)
     {
-        clear_screen();
+        ClearScreen();
         FunctionTesting_menu_print();
-        //  // std::cin >> subaction;
-        scanf("%d", &subaction);
+        std::cin >> subaction;
         subaction = CheckInput(subaction);
         switch (subaction)
         {
         case 1: // Mean 7by7
-            clear_screen();
+            ClearScreen();
             printf("\n Input 7 By 7 Matrix: \n\n");
-            Input_7By7Matrix(Matrix);
-            //  // std::cout << "\n Mean of matrix =  " << Mean_Matrix7by7(Matrix) << "\n";
-            printf("\n Mean of matrix = %.2f", Mean_Matrix7by7(Matrix));
+            Matrix7squar_loader(Matrix);
+            //  // std::cout << "\n Mean of matrix =  " << Matrix7squar_mean(Matrix) << "\n";
+            printf("\n Mean of matrix = %.2f", Matrix7squar_mean(Matrix));
             std::cin.get();
             std::cin.get();
             break;
         case 2: // STD 7by7
-            clear_screen();
+            ClearScreen();
             printf("\n Input 7 By 7 Matrix: \n\n");
-            Input_7By7Matrix(Matrix);
-            // std::cout << Std_Matrix7by7(Matrix, Mean_Matrix7by7(Matrix)) << "\n";
-            printf("\n STD of 7 By 7 Matrix = %.2f", Std_Matrix7by7(Matrix, Mean_Matrix7by7(Matrix)));
+            Matrix7squar_loader(Matrix);
+            // std::cout << Matrix7squar_std(Matrix, Matrix7squar_mean(Matrix)) << "\n";
+            printf("\n STD of 7 By 7 Matrix = %.2f", Matrix7squar_std(Matrix, Matrix7squar_mean(Matrix)));
             std::cin.get();
             std::cin.get();
             break;
         case 3: // Arry - Arry Distance Calculator
-            clear_screen();
+            ClearScreen();
             printf("\n Input 7 elements of Array #1: ");
-            Input_Arry(Matrix[7], 7);
+            Array_loader(Matrix[7], 7);
             printf("\n Input 7 elements of Array #2: ");
-            Input_Arry(Matrix[6], 7);
-            printf("\n Distance: %.2f", Distance_Cal(Matrix[7], Matrix[6], 7));
+            Array_loader(Matrix[6], 7);
+            printf("\n Distance: %.2f", DistanceCalculator(Matrix[7], Matrix[6], 7));
             std::cin.get();
             std::cin.get();
             break;
         // case 4: // Arry - Matrix Distance Calculator
-        //     clear_screen();
+        //     ClearScreen();
         //     printf("\n Input 7 elements of Array: ");
-        //     Input_Arry(Matrix[7], 7);
+        //     Array_loader(Matrix[7], 7);
         //     printf("\n Input 7 by 7 Matrix: \n");
-        //     Input_7By7Matrix(Matrix);
-        //     printf("\n Distance: %.2f", DistanceForMatrix_Cal());
+        //     Matrix7squar_loader(Matrix);
+        //     printf("\n Distance: %.2f", MatrixDistanceCalculator());
         //     break;
         case 0:
             return;
@@ -395,7 +439,48 @@ void FunctionTesting_menu()
     }
 }
 
-float Distance_Cal(float ArryA[], float ArryB[], int size)
+//         FUNCTIONS
+
+void Image_print(float img[][IMAGE_SIZE])
+{
+    for (int i = 0; i < IMAGE_SIZE; i++)
+    {
+        for (int j = 0; j < IMAGE_SIZE; j++)
+        {
+            if (img[i][j] == 0)
+                std::cout << ".";
+            else
+            {
+                std::cout << '#';
+            }
+        }
+        std::cout << std::endl;
+    }
+    std::cin.get();
+    std::cin.get();
+}
+
+void ClearScreen()
+{
+#ifdef _WIN32
+    system("cls");
+#else
+    system("clear");
+#endif
+}
+
+int CheckInput(int opt)
+{
+    if (std::cin.fail())
+    {
+        std::cin.clear();
+        std::cin.ignore(10000, '\n');
+        opt = -1;
+    }
+    return opt;
+}
+
+float DistanceCalculator(float ArryA[], float ArryB[], int size)
 {
     float sum{0};
 
@@ -407,15 +492,15 @@ float Distance_Cal(float ArryA[], float ArryB[], int size)
     return sum;
 }
 
-void DistanceForMatrix_Cal(float ArryA[], float MatrixA[][IMAGE_SIZE], float DistanceArry[])
+void MatrixDistanceCalculator(float ArryA[], float MatrixA[][IMAGE_SIZE], float DistanceArry[])
 {
     for (int i = 0; i < IMAGE_SIZE; i++)
     {
-        DistanceArry[i] = Distance_Cal(ArryA, MatrixA[i], IMAGE_SIZE);
+        DistanceArry[i] = DistanceCalculator(ArryA, MatrixA[i], IMAGE_SIZE);
     }
 }
 
-void Break_Down(float SourceMatrix[IMAGE_SIZE][IMAGE_SIZE], float Values[32])
+void BreakDown(float SourceMatrix[IMAGE_SIZE][IMAGE_SIZE], float Values[32])
 {
     float LilSquar[7][7];
     int iSource{0}, jSource{0}, squarNum{0};
@@ -436,8 +521,8 @@ void Break_Down(float SourceMatrix[IMAGE_SIZE][IMAGE_SIZE], float Values[32])
         }
         squarNum++;
 
-        Values[squarNum] = Mean_Matrix7by7(LilSquar);
-        Values[squarNum + 16] = Std_Matrix7by7(LilSquar, Values[squarNum]);
+        Values[squarNum] = Matrix7squar_mean(LilSquar);
+        Values[squarNum + 16] = Matrix7squar_std(LilSquar, Values[squarNum]);
 
         if (iSource >= IMAGE_SIZE)
         {
@@ -447,7 +532,7 @@ void Break_Down(float SourceMatrix[IMAGE_SIZE][IMAGE_SIZE], float Values[32])
     }
 }
 
-float Mean_Matrix7by7(float Matrix[][7])
+float Matrix7squar_mean(float Matrix[][7])
 {
     float sum{0};
 
@@ -464,7 +549,7 @@ float Mean_Matrix7by7(float Matrix[][7])
     return (sum / 49.0);
 }
 
-float Std_Matrix7by7(float Matrix[][7], float Mean)
+float Matrix7squar_std(float Matrix[][7], float Mean)
 {
     float sum{0};
 
@@ -481,7 +566,7 @@ float Std_Matrix7by7(float Matrix[][7], float Mean)
     return sqrt(sum / 49);
 }
 
-void Input_7By7Matrix(float Matrix[][7])
+void Matrix7squar_loader(float Matrix[][7])
 {
     for (int i = 0; i < 7; i++)
     {
@@ -503,7 +588,7 @@ void Input_7By7Matrix(float Matrix[][7])
     }
 }
 
-void Input_Arry(float Arry[], int N)
+void Array_loader(float Arry[], int N)
 {
     for (int i = 0; i < N; i++)
     {
