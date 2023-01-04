@@ -8,8 +8,8 @@ int main()
     // Timer timer;
 
     float img[IMAGE_SIZE][IMAGE_SIZE];
-    TrainSet Trainsets[10]; 
-    int action;
+    TrainSet Trainsets[10];
+    int action, IsDatabaseReady{0};
 
     while (1)
     {
@@ -24,10 +24,10 @@ int main()
             ExploreMenu(img);
             break;
         case 2:
-            TrainMenu(Trainsets, img);
+            TrainMenu(Trainsets, img, &IsDatabaseReady);
             break;
         case 3:
-            TestMenu(img);
+            TestMenu(Trainsets, img, &IsDatabaseReady);
             break;
         case 4:
             ClearScreen();
@@ -54,10 +54,8 @@ int main()
                 printf("!!  Wrong Input  !! \n");
                 std::cin.get();
             }
-
             break;
         }
     }
-
     return 0;
 }
