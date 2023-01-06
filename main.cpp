@@ -43,14 +43,11 @@ int main()
         default:
             if (action != -1)
             {
-                //  // std::cout << "!!  Wrong Input  !! \n";
                 printf("!!  Wrong Input  !! \n");
-                std::cin.get();
-                std::cin.get();
+                Pause();
             }
             else
             {
-                //  // std::cout << "!!  Wrong Input  !! \n";
                 printf("!!  Wrong Input  !! \n");
                 std::cin.get();
             }

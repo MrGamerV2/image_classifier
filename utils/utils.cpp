@@ -102,30 +102,19 @@ void TrainMenu_print()
               << ">>  ";
 }
 
-void TestMenu_print(int *Label, int *PicNum, float ImgFeatures[], int *ChosenLabel)
+void TestMenu_print(int *Label, int *PicNum, float ImgFeatures[], int *KNearest)
 {
-    std::cout << "\n   ||   Testing DataSet   ||\n\n"
+    std::cout << "\n   ||   Testing Data Set   ||\n\n"
               << " 1 - Show Image\n\n"
               << " 2 - Label\n\n"
               << " 3 - Picture Number\n\n"
-              << " 4 - Test\n\n"
+              << " 4 - K Nearest\n\n"
+              << " 5 - Test\n\n"
               << " 0 - Return\n\n"
-              << " # Label       : " << *Label << "\n"
-              << " # PicNum      : " << *PicNum << "\n"
-              << " # Closest Label: " << *ChosenLabel << "\t\n\n";
-
-    // printf(" Image MEAN:\n ");
-    // for (int i = 0; i < 16; i++)
-    // {
-    //     std::cout << ImgFeatures[i] << ' ';
-    // }
-    // printf("\n Image STD:\n ");
-    // for (int i = 0; i < 16; i++)
-    // {
-    //     std::cout << ImgFeatures[i + 16] << ' ';
-    // }
-
-    std::cout << "\n>> ";
+              << " # Label        : " << *Label << "\n"
+              << " # PicNum       : " << *PicNum << "\n"
+              << " # K Nearest    : " << *KNearest << "\n"
+              << "\n>> ";
 }
 
 //         MENU(S)
@@ -133,7 +122,7 @@ void TestMenu_print(int *Label, int *PicNum, float ImgFeatures[], int *ChosenLab
 void ExploreMenu(float img[][IMAGE_SIZE])
 {
     int Label{-1}, PicNum{-1}, filecount;
-    int subaction;
+    int subaction, temp;
     std::string image_path;
 
     while (1)
@@ -148,8 +137,7 @@ void ExploreMenu(float img[][IMAGE_SIZE])
             if (Label == -1 || PicNum == -1)
             {
                 printf("\n Please select an image first..");
-                std::cin.get();
-                std::cin.get();
+                Pause();
             }
             else
             { // LOADING AND PRINTING IMAGE
@@ -160,41 +148,42 @@ void ExploreMenu(float img[][IMAGE_SIZE])
                     ++PicNum;
             }
             break;
-        case 2:
+        case 2: // LABEL INPUT
             std::cout << " Input Label (0 - 9):  ";
             std::cin.ignore(10000, '\n');
-            std::cin >> Label;
-            if (Label < 0 || Label > 9)
+            std::cin >> temp;
+            if (temp < 0 || temp > 9)
             {
-                std::cout << " !! Unavailable Label !!";
-                Label = -1;
-                std::cin.get();
-                std::cin.get();
+                std::cout << "\t!! Unavailable Label !!";
+                Pause();
+                break;
             }
+            Label = temp;
             image_path = interpolation("data\\mnist", "train", Label);
             filecount = file_count(image_path) - 1;
             PicNum = -1;
             break;
-        case 3:
+        case 3: // PICNUM INPUT
             if (Label == -1)
             {
                 printf("\n Please Select Image Label first");
-                std::cin.get();
-                std::cin.get();
+                Pause();
             }
             else
             {
-                std::cout << " Input Picture Number (1 - "
+                std::cout << " Input Picture Number (0 - "
                           << filecount
                           << "):  ";
                 std::cin.ignore(10000, '\n');
-                std::cin >> PicNum;
-                if (PicNum > filecount || PicNum < 0)
+                std::cin >> temp;
+                if (temp > filecount || temp < 0)
                 {
-                    std::cout << " !! Wrong Picture Number !!";
-                    PicNum = -1;
-                    std::cin.get();
-                    std::cin.get();
+                    std::cout << "\t!! Wrong Picture Number !!";
+                    Pause();
+                }
+                else
+                {
+                    PicNum = temp;
                 }
             }
             break;
@@ -203,15 +192,12 @@ void ExploreMenu(float img[][IMAGE_SIZE])
         default:
             if (subaction != -1)
             {
-                //  // std::cout << "!!  Wrong Input  !! \n";
-                printf("!!  Wrong Input  !! \n");
-                std::cin.get();
-                std::cin.get();
+                printf("\t!!  Wrong Input  !! \n");
+                Pause();
             }
             else
             {
-                //  // std::cout << "!!  Wrong Input  !! \n";
-                printf("!!  Wrong Input  !! \n");
+                printf("\t!!  Wrong Input  !! \n");
                 std::cin.get();
             }
 
@@ -220,13 +206,12 @@ void ExploreMenu(float img[][IMAGE_SIZE])
     }
 }
 
-void TrainMenu(TrainSet Trainsets[], float img[][IMAGE_SIZE], int *IsDatabaseReady)
+void TrainMenu(TrainSet Trainsets[], float img[IMAGE_SIZE][IMAGE_SIZE], int *IsDatabaseReady)
 {
     int subaction;
     int count{0}, ChosenLabel;
     std::string image_path;
     float ImageFeatures[40]{0};
-    float CompareSet[IMAGE_DATABASE_LIMIT]{0}, ClosestDistance{100000};
 
     while (1)
     {
@@ -237,8 +222,7 @@ void TrainMenu(TrainSet Trainsets[], float img[][IMAGE_SIZE], int *IsDatabaseRea
         switch (subaction)
         {
         case 1:
-        {
-            // LOADING TRAIN SET
+        { // LOADING TRAIN SET
             for (int i = 0; i < 10; i++)
             {
                 image_path = interpolation("data\\mnist", "train", i);
@@ -248,33 +232,80 @@ void TrainMenu(TrainSet Trainsets[], float img[][IMAGE_SIZE], int *IsDatabaseRea
                     ImageLoad(image_path, j, img);
                     BreakDown(img, Trainsets[i].imgs[j]);
                 }
-                // count = 0;
-                // image_path = interpolation("data\\mnist", "test", std::to_string(i));
-                // for (int j = 1; j < file_count(image_path); j++)
-                // {
-                //     ImageLoad(image_path, j, img);
-                //     BreakDown(img, ImageFeatures);
-                //     MatrixDistanceCalculator(Trainsets[i].imgs, ImageFeatures, CompareSet);
-                //     for (int k = 0; k < IMAGE_DATABASE_LIMIT; k++)
-                //     {
-                //         if (CompareSet[k] < ClosestDistance)
-                //         {
-                //             ClosestDistance = CompareSet[j];
-                //             ChosenLabel = i;
-                //         }
-                //     }
-
-                //     if (ChosenLabel == i)
-                //     {
-                //         ++count;
-                //     }
-                // }
-
-                // printf("\n %d: %d\n", i, count);
             }
+
+            // OFF-SET PERSENTAGE
+            CompareSets Set[DEFAULT_K];
+            float DistanceHolder[IMAGE_DATABASE_LIMIT];
+            int Place, LabelCounter[10]{0}, CorrectCount;
+
+            for (int i = 0; i < 10; i++)
+            {
+                CorrectCount = 0;
+                image_path = interpolation("data\\mnist", "test", i);
+                for (int j = 0; j < ACCURACY_IMAGE; j++)
+                {
+                    ImageLoad(image_path, j, img);
+                    BreakDown(img, ImageFeatures);
+
+                    // RESETING COUNTERS
+                    for (int k = 0; k < 10; k++)
+                    {
+                        LabelCounter[k] = 0;
+                    }
+
+                    for (int k = 0; k < DEFAULT_K; k++)
+                    {
+                        Set[k].Distance = 1000 + k;
+                    }
+
+                    for (int k = 0; k < 10; ++k)
+                    {
+                        MatrixDistanceCalculator(Trainsets[k].imgs, ImageFeatures, DistanceHolder);
+                        for (int z = 0; z < IMAGE_DATABASE_LIMIT; z++)
+                        {
+                            if (DistanceHolder[z] < Set[DEFAULT_K - 1].Distance)
+                            {
+                                Place = DEFAULT_K - 1;
+                                while (DistanceHolder[z] < Set[Place].Distance)
+                                {
+                                    Place--;
+                                }
+                                Place++;
+                                ArrayCompareSetPush(Place, DEFAULT_K, Set);
+                                Set[Place].Label = k;
+                                Set[Place].Distance = DistanceHolder[z];
+                            }
+                        }
+                    }
+
+                    for (int k = 0; k < DEFAULT_K; k++)
+                    {
+                        LabelCounter[Set[k].Label]++;
+                    }
+                    int max{0}, MaxLabel;
+                    for (int k = 0; k < 10; k++)
+                    {
+                        if (LabelCounter[k] > max)
+                        {
+                            max = LabelCounter[k];
+                            MaxLabel = k;
+                        }
+                    }
+                    if (MaxLabel == i)
+                    {
+                        CorrectCount++;
+                    }
+                }
+
+                if (i % 5 == 0)
+                    printf("\n");
+
+                printf("| #%d: %.2f% |", i, (CorrectCount * 100.0 / ACCURACY_IMAGE * 1.0));
+            }
+
             *IsDatabaseReady = 1;
-            // std::cin.get();
-            // std::cin.get();
+            Pause();
             break;
         }
         case 0:
@@ -282,15 +313,12 @@ void TrainMenu(TrainSet Trainsets[], float img[][IMAGE_SIZE], int *IsDatabaseRea
         default:
             if (subaction != -1)
             {
-                //  // std::cout << "!!  Wrong Input  !! \n";
-                printf("!!  Wrong Input  !! \n");
-                std::cin.get();
-                std::cin.get();
+                printf("\t!!  Wrong Input  !! \n");
+                Pause();
             }
             else
             {
-                //  // std::cout << "!!  Wrong Input  !! \n";
-                printf("!!  Wrong Input  !! \n");
+                printf("\t!!  Wrong Input  !! \n");
                 std::cin.get();
             }
             break;
@@ -300,15 +328,15 @@ void TrainMenu(TrainSet Trainsets[], float img[][IMAGE_SIZE], int *IsDatabaseRea
 
 void TestMenu(TrainSet Trainsets[], float img[][IMAGE_SIZE], int *IsDatabaseReady)
 {
-    int subaction;
-    int Label{-1}, PicNum{-1}, filecount, ChosenLabel{-1};
+    int subaction, temp;
+    int Label{-1}, PicNum{-1}, filecount, ChosenLabel{-1}, KNearest{5};
     std::string image_path{""};
     float ImageFeatures[40]{0};
 
     while (1)
     {
         ClearScreen();
-        TestMenu_print(&Label, &PicNum, ImageFeatures, &ChosenLabel);
+        TestMenu_print(&Label, &PicNum, ImageFeatures, &KNearest);
         std::cin >> subaction;
         subaction = CheckInput(subaction);
         switch (subaction)
@@ -317,105 +345,152 @@ void TestMenu(TrainSet Trainsets[], float img[][IMAGE_SIZE], int *IsDatabaseRead
             if (Label == -1 || PicNum == -1)
             {
                 printf("\n Please select an image first..");
-                std::cin.get();
-                std::cin.get();
+                Pause();
             }
             else
             { // LOADING AND PRINTING IMAGE
                 Image_print(img);
             }
             break;
-        case 2:
+        case 2: // LABEL INPUT
             std::cout << " Input Label (0 - 9):  ";
             std::cin.ignore(10000, '\n');
-            std::cin >> Label;
-            if (Label < 0 || Label > 9)
+            std::cin >> temp;
+            if (temp < 0 || temp > 9)
             {
-                std::cout << " !! Unavailable Label !!";
-                Label = -1;
-                std::cin.get();
-                std::cin.get();
+                std::cout << "\t!! Unavailable Label !!";
+                Pause();
+                break;
+                ;
             }
+            Label = temp;
             image_path = interpolation("data\\mnist", "test", Label);
             filecount = file_count(image_path);
             PicNum = -1;
             break;
-        case 3:
+        case 3: // PICNUM INPUT
             if (Label == -1)
             {
                 printf("\n Please Select Image Label first");
-                std::cin.get();
-                std::cin.get();
+                Pause();
             }
             else
             {
-                std::cout << " Input Picture Number (1 - "
+                std::cout << " Input Picture Number (0 - "
                           << filecount
                           << "):  ";
                 std::cin.ignore(10000, '\n');
-                std::cin >> PicNum;
-                if (PicNum > filecount || PicNum < 0)
+                std::cin >> temp;
+                if (temp > filecount || temp < 0)
                 {
-                    std::cout << " !! Wrong Picture Number !!";
-                    PicNum = -1;
-                    std::cin.get();
-                    std::cin.get();
+                    std::cout << "\t!! Wrong Picture Number !!";
+                    Pause();
                 }
                 else
+                {
+                    PicNum = temp;
                     ImageLoad(image_path, PicNum, img);
+                }
             }
             break;
-        case 4:
+        case 4: // K FOR NN INPUT
+            printf("\n Input K for KNN (1 - %d):  ", IMAGE_DATABASE_LIMIT / 10);
+            std::cin >> temp;
+            if (temp <= 0 || temp > IMAGE_DATABASE_LIMIT / 10)
+            {
+                printf("\t!! Wrong Input !!");
+                Pause();
+                break;
+            }
+            KNearest = temp;
+            break;
+        case 5: // TESTING STATION
             if (Label == -1 || PicNum == -1)
             {
                 printf("\n Please select an image first..");
-                std::cin.get();
-                std::cin.get();
+                Pause();
             }
             else if (*IsDatabaseReady == 0)
             {
                 std::cout << "\n Please use the train function first..";
-                std::cin.get();
-                std::cin.get();
+                Pause();
             }
             else
             {
-                float CompareSet[IMAGE_DATABASE_LIMIT]{0}, ClosestDistance{100000};
+                CompareSets Set[IMAGE_DATABASE_LIMIT / 10 + 1];
+                float DistanceHolder[IMAGE_DATABASE_LIMIT];
+                int Place, LabelCounter[10]{0};
+
+                for (int i = 0; i < KNearest; i++)
+                {
+                    Set[i].Distance = 1000 + i;
+                }
 
                 BreakDown(img, ImageFeatures);
 
                 for (int i = 0; i < 10; ++i)
                 {
-                    MatrixDistanceCalculator(Trainsets[i].imgs, ImageFeatures, CompareSet);
+                    MatrixDistanceCalculator(Trainsets[i].imgs, ImageFeatures, DistanceHolder);
                     for (int j = 0; j < IMAGE_DATABASE_LIMIT; j++)
                     {
-                        if (CompareSet[j] < ClosestDistance)
+                        if (DistanceHolder[j] < Set[KNearest - 1].Distance)
                         {
-                            ClosestDistance = CompareSet[j];
-                            ChosenLabel = i;
+                            Place = KNearest - 1;
+                            while (DistanceHolder[j] < Set[Place].Distance)
+                            {
+                                Place--;
+                            }
+                            Place++;
+                            ArrayCompareSetPush(Place, KNearest, Set);
+                            Set[Place].Label = i;
+                            Set[Place].Distance = DistanceHolder[j];
                         }
                     }
                 }
+
+                for (int i = 0; i < KNearest; i++)
+                {
+                    if (i % 7 == 0)
+                    {
+                        printf("\n");
+                    }
+                    printf("| #%d: %.2f |", Set[i].Label, Set[i].Distance);
+                    LabelCounter[Set[i].Label]++;
+                }
+                int max{0};
+                for (int k = 0; k < 10; k++)
+                {
+                    if (LabelCounter[k] > max)
+                    {
+                        max = LabelCounter[k];
+                        ChosenLabel = k;
+                    }
+                }
+                printf("\n\n");
+                std::cout << " # Detected Label: " << ChosenLabel << "\t\n";
+                for (int i = 0; i < 10; i++)
+                {
+                    printf("| #%d = %d |", i, LabelCounter[i]);
+                }
+                printf("\n");
+
+
+                Image_print(img);
             }
             break;
         case 0:
             return;
-            break;
         default:
             if (subaction != -1)
             {
-                //  // std::cout << "!!  Wrong Input  !! \n";
-                printf("!!  Wrong Input  !! \n");
-                std::cin.get();
-                std::cin.get();
+                printf("\t!!  Wrong Input  !! \n");
+                Pause();
             }
             else
             {
-                //  // std::cout << "!!  Wrong Input  !! \n";
-                printf("!!  Wrong Input  !! \n");
+                printf("\t!!  Wrong Input  !! \n");
                 std::cin.get();
             }
-
             break;
         }
     }
@@ -437,19 +512,15 @@ void FunctionTesting_menu()
             ClearScreen();
             printf("\n Input 7 By 7 Matrix: \n\n");
             Matrix7squar_loader(Matrix);
-            //  // std::cout << "\n Mean of matrix =  " << Matrix7squar_mean(Matrix) << "\n";
             printf("\n Mean of matrix = %.2f", Matrix7squar_mean(Matrix));
-            std::cin.get();
-            std::cin.get();
+            Pause();
             break;
         case 2: // STD 7by7
             ClearScreen();
             printf("\n Input 7 By 7 Matrix: \n\n");
             Matrix7squar_loader(Matrix);
-            // std::cout << Matrix7squar_std(Matrix, Matrix7squar_mean(Matrix)) << "\n";
             printf("\n STD of 7 By 7 Matrix = %.2f", Matrix7squar_std(Matrix, Matrix7squar_mean(Matrix)));
-            std::cin.get();
-            std::cin.get();
+            Pause();
             break;
         case 3: // Arry - Arry Distance Calculator
             ClearScreen();
@@ -458,8 +529,7 @@ void FunctionTesting_menu()
             printf("\n Input 7 elements of Array #2: ");
             Array_loader(Matrix[6], 7);
             printf("\n Distance: %.2f", DistanceCalculator(Matrix[7], Matrix[6], 7));
-            std::cin.get();
-            std::cin.get();
+            Pause();
             break;
         // case 4: // Arry - Matrix Distance Calculator
         //     ClearScreen();
@@ -474,15 +544,12 @@ void FunctionTesting_menu()
         default:
             if (subaction != -1)
             {
-                //  // std::cout << "!!  Wrong Input  !! \n";
-                printf("!!  Wrong Input  !! \n");
-                std::cin.get();
-                std::cin.get();
+                printf("\t!!  Wrong Input  !! \n");
+                Pause();
             }
             else
             {
-                //  // std::cout << "!!  Wrong Input  !! \n";
-                printf("!!  Wrong Input  !! \n");
+                printf("\t!!  Wrong Input  !! \n");
                 std::cin.get();
             }
 
@@ -508,8 +575,7 @@ void Image_print(float img[][IMAGE_SIZE])
         }
         std::cout << std::endl;
     }
-    std::cin.get();
-    std::cin.get();
+    Pause();
 }
 
 void ClearScreen()
@@ -519,6 +585,12 @@ void ClearScreen()
 #else
     system("clear");
 #endif
+}
+
+void Pause()
+{
+    std::cin.get();
+    std::cin.get();
 }
 
 int CheckInput(int Input)
@@ -568,7 +640,7 @@ void BreakDown(float SourceMatrix[IMAGE_SIZE][IMAGE_SIZE], float Values[32])
             iSource++;
             jSource -= 7;
         }
-        squarNum++;
+        ++squarNum;
 
         Values[squarNum] = Matrix7squar_mean(LilSquar);
         Values[squarNum + 16] = Matrix7squar_std(LilSquar, Values[squarNum]);
@@ -622,7 +694,6 @@ void Matrix7squar_loader(float Matrix[][7])
         printf("Row %d :  ", i + 1);
         for (int j = 0; j < 7; j++)
         {
-            //  // std::cin >> Matrix[i][j];
             scanf("%f", &Matrix[i][j]);
 
             { // INCASE OF ACCIDENTAL INPUT
@@ -651,5 +722,16 @@ void Array_loader(float Arry[], int N)
             std::cin.ignore(10000, '\n');
             return;
         }
+    }
+}
+
+void ArrayCompareSetPush(int StartPosition, int Length, CompareSets Array[])
+{
+    CompareSets temp;
+    for (int i = Length - 1; i > StartPosition; i--)
+    {
+        temp = Array[i];
+        Array[i] = Array[i - 1];
+        Array[i - 1] = temp;
     }
 }
