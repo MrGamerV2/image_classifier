@@ -3,9 +3,10 @@
 #define IMAGE_SIZE 28
 #define BATCH_SIZE 100
 #define IMAGE_BUFFER_SIZE 784
+
 // Personal edits
 
-#define IMAGE_DATABASE_LIMIT 500 
+#define IMAGE_DATABASE_LIMIT 1000 
 #define FEATURE_LIMIT 32
 
 #include "timer.hpp"
@@ -18,7 +19,7 @@
 #include <fstream>
 
 void ImageLoad(std::string, int, float[IMAGE_SIZE][IMAGE_SIZE]);
-std::string interpolation(std::string, std::string, std::string);
+std::string interpolation(std::string, std::string, int);
 int file_count(std::string);
 
 // Structues

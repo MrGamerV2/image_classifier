@@ -25,7 +25,7 @@ void ImageLoad(std::string image_path, int index, float image[IMAGE_SIZE][IMAGE_
     }
 }
 
-std::string interpolation(std::string root, std::string type, std::string class_name)
+std::string interpolation(std::string root, std::string type, int class_name)
 {
     std::string path = "";
 
@@ -33,7 +33,7 @@ std::string interpolation(std::string root, std::string type, std::string class_
     path.append("\\");
     path.append(type);
     path.append("\\");
-    path.append(class_name);
+    path.append(std::to_string(class_name));
     path.append("\\data.dat");
 
     return path;
@@ -171,8 +171,9 @@ void ExploreMenu(float img[][IMAGE_SIZE])
                 std::cin.get();
                 std::cin.get();
             }
-            image_path = interpolation("data\\mnist", "train", std::to_string(Label));
+            image_path = interpolation("data\\mnist", "train", Label);
             filecount = file_count(image_path) - 1;
+            PicNum = -1;
             break;
         case 3:
             if (Label == -1)
@@ -222,10 +223,10 @@ void ExploreMenu(float img[][IMAGE_SIZE])
 void TrainMenu(TrainSet Trainsets[], float img[][IMAGE_SIZE], int *IsDatabaseReady)
 {
     int subaction;
-    // int count{0}, ChosenLabel;
+    int count{0}, ChosenLabel;
     std::string image_path;
-    // float ImageFeatures[32]{0};
-    // float CompareSet[IMAGE_DATABASE_LIMIT]{0}, ClosestDistance{100000};
+    float ImageFeatures[40]{0};
+    float CompareSet[IMAGE_DATABASE_LIMIT]{0}, ClosestDistance{100000};
 
     while (1)
     {
@@ -240,7 +241,7 @@ void TrainMenu(TrainSet Trainsets[], float img[][IMAGE_SIZE], int *IsDatabaseRea
             // LOADING TRAIN SET
             for (int i = 0; i < 10; i++)
             {
-                image_path = interpolation("data\\mnist", "train", std::to_string(i));
+                image_path = interpolation("data\\mnist", "train", i);
                 Trainsets[i].Label = i;
                 for (int j = 0; j < IMAGE_DATABASE_LIMIT; j++)
                 {
@@ -302,7 +303,7 @@ void TestMenu(TrainSet Trainsets[], float img[][IMAGE_SIZE], int *IsDatabaseRead
     int subaction;
     int Label{-1}, PicNum{-1}, filecount, ChosenLabel{-1};
     std::string image_path{""};
-    float ImageFeatures[32]{0};
+    float ImageFeatures[40]{0};
 
     while (1)
     {
@@ -335,8 +336,9 @@ void TestMenu(TrainSet Trainsets[], float img[][IMAGE_SIZE], int *IsDatabaseRead
                 std::cin.get();
                 std::cin.get();
             }
-            image_path = interpolation("data\\mnist", "test", std::to_string(Label));
+            image_path = interpolation("data\\mnist", "test", Label);
             filecount = file_count(image_path);
+            PicNum = -1;
             break;
         case 3:
             if (Label == -1)
