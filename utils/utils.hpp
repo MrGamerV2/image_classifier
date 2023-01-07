@@ -6,10 +6,11 @@
 
 // Personal edits
 
-#define IMAGE_DATABASE_LIMIT 500 
+#define IMAGE_DATABASE_LIMIT 800 
 #define FEATURE_LIMIT 32
 #define ACCURACY_IMAGE 75
-#define DEFAULT_K 15
+#define DEFAULT_K 80
+#define OFFSET_FOR_DATABASE 1000
 
 #include "timer.hpp"
 
@@ -23,7 +24,7 @@
 #include <fstream>
 
 void ImageLoad(std::string, int, float[IMAGE_SIZE][IMAGE_SIZE]);
-std::string interpolation(std::string, std::string, int);
+std::string interpolation(std::string, std::string, std::string);
 int file_count(std::string);
 
 // Structues
@@ -60,24 +61,30 @@ void Info_print();
 void Image_print(float img[][IMAGE_SIZE]);
 
 /// @param Label Number Label @param PicNum Picture Numer
-void ExploreMenu_print(int *Label, int *PicNum);
+void ExploreMenu_print(int *Label, int *PicNum, bool IsDataTypeNum);
 
 /// @param img 28x28 Image loaded as matrix
-void ExploreMenu(float img[][IMAGE_SIZE]);
+void ExploreMenu(float img[][IMAGE_SIZE], bool *IsDataTypeNum);
 
-void TrainMenu_print();
+void TrainMenu_print(bool IsDataTypeNum);
 /// @param img 28x28 Image loaded as matrix @param TrainSets 
-void TrainMenu(TrainSet TrainSets[], float img[IMAGE_SIZE][IMAGE_SIZE], int *IsDatabaseReady);
+void TrainMenu(TrainSet TrainSets[], float img[IMAGE_SIZE][IMAGE_SIZE], bool *IsDatabaseReady, bool *IsDataTypeNum);
 
 /// @param Label Number Label @param PicNum Picture Numer @param ImgFeatures The array which holds the featues
-void TestMenu_print(int *Label, int *PicNum, float ImgFeatures[], int *KNearest);
+void TestMenu_print(int *Label, int *PicNum, float ImgFeatures[], int *KNearest, bool IsDataTypeNum);
 
 /// @param img 28x28 Matrix @param IsDatabaseReady A fail safe
-void TestMenu(TrainSet Trainsets[],float img[][IMAGE_SIZE] , int *IsDatabaseReady);
+void TestMenu(TrainSet Trainsets[],float img[][IMAGE_SIZE] , bool *IsDatabaseReady, bool *IsDataTypeNum);
 
 void FunctionTesting_menu();
 
 void FunctionTesting_menu_print();
+
+/// You can choose your datatype here.
+/// @param IsDataTypeNum Defines if data is numbers or fashion items.
+void Options(bool *IsDataTypeNum, bool *IsDatabaseReady);
+
+void Options_print(bool IsNum);
 
 /// Calculates distance of two arrays. @param size Length of arrays.
 float DistanceCalculator(float ArrayA[], float ArrayB[], int size);
@@ -99,5 +106,7 @@ void Matrix7squar_loader(float Matrix[][7]);
 /// Loads Array with N lengh @param N Lengh of the array
 void Array_loader(float Arry[], int N);
 
-
 void ArrayCompareSetPush(int StartPosition, int Length, CompareSets Array[]);
+
+/// Translates numeric label to string name for fashion mnist.
+std::string interpolationDictionary(int Label);

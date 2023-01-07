@@ -9,11 +9,12 @@ int main()
 
     float img[IMAGE_SIZE][IMAGE_SIZE];
     TrainSet Trainsets[10];
-    int action, IsDatabaseReady{0};
-
+    int action;
+    bool IsDatabaseReady{false}, IsDataTypeNum{true};
+    
     while (1)
     {
-        // system("color B0");
+        // system("color 0B");
         ClearScreen();
         StartMenu_print();
         std::cin >> action;
@@ -21,13 +22,13 @@ int main()
         switch (action)
         {
         case 1:
-            ExploreMenu(img);
+            ExploreMenu(img, &IsDataTypeNum);
             break;
         case 2:
-            TrainMenu(Trainsets, img, &IsDatabaseReady);
+            TrainMenu(Trainsets, img, &IsDatabaseReady, &IsDataTypeNum);
             break;
         case 3:
-            TestMenu(Trainsets, img, &IsDatabaseReady);
+            TestMenu(Trainsets, img, &IsDatabaseReady, &IsDataTypeNum);
             break;
         case 4:
             ClearScreen();
@@ -37,6 +38,9 @@ int main()
             break;
         case 5:
             FunctionTesting_menu();
+            break;
+        case 6:
+            Options(&IsDataTypeNum, &IsDatabaseReady);
             break;
         case 0:
             return 0;

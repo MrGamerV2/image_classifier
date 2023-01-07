@@ -25,7 +25,7 @@ void ImageLoad(std::string image_path, int index, float image[IMAGE_SIZE][IMAGE_
     }
 }
 
-std::string interpolation(std::string root, std::string type, int class_name)
+std::string interpolation(std::string root, std::string type, std::string class_name)
 {
     std::string path = "";
 
@@ -33,7 +33,7 @@ std::string interpolation(std::string root, std::string type, int class_name)
     path.append("\\");
     path.append(type);
     path.append("\\");
-    path.append(std::to_string(class_name));
+    path.append(class_name);
     path.append("\\data.dat");
 
     return path;
@@ -52,8 +52,8 @@ int file_count(std::string path)
 
 void Info_print()
 {
-    std::cout << "\n The scope of this program is to detect a number in the given image(Image should be grayscaled and in 28x28 pixels.) \n \n"
-              << " Programmer: Ilya.M \n\n"
+    std::cout << "\n The scope of this program is to detect a number or a fashion item in the given image(Image should be grayscaled and in 28x28 pixels.) \n \n"
+              << " Programmer: Ilya.M  AKA Mr.Gamer\n\n"
               << " Contact Email: Iliya.gbm@gmail.com \n \n"
               << " Press Enter to go back.";
 }
@@ -67,20 +67,32 @@ void StartMenu_print()
               << "    ||        Extra Details     ||\n\n"
               << " 4 - Info \n\n"
               << " 5 - Testing mathematical functions \n\n"
+              << " 6 - Options \n\n"
               << " 0 - Exit \n\n"
               << ">> ";
 }
 
-void ExploreMenu_print(int *Label, int *PicNum)
+void ExploreMenu_print(int *Label, int *PicNum, bool IsDataTypeNum)
 {
     std::cout << "\n   ||   Exploring DataSet   ||\n\n"
               << " 1 - Show Image\n\n"
               << " 2 - Label\n\n"
               << " 3 - Picture Number\n\n"
-              << " 0 - Return\n\n"
-              << " # Label:   " << *Label << "\n"
-              << " # PicNum:  " << *PicNum << "\n\n"
-              << ">> ";
+              << " 0 - Return\n\n";
+
+    if (IsDataTypeNum == true)
+        std::cout << " # Label      : " << *Label << "\n";
+    else
+        std::cout << " # Label      : " << interpolationDictionary(*Label) << "\n";
+
+    std::cout << " # PicNum     : " << *PicNum << "\n\n";
+
+    if (IsDataTypeNum == true)
+        printf(" [#] Numbers\n [ ] Fashion\n");
+    else
+        printf(" [ ] Numbers\n [#] Fashion\n");
+
+    printf(">> ");
 }
 
 void FunctionTesting_menu_print()
@@ -94,15 +106,21 @@ void FunctionTesting_menu_print()
               << ">>  ";
 }
 
-void TrainMenu_print()
+void TrainMenu_print(bool IsDataTypeNum)
 {
     std::cout << "\n   ||   Training Program   ||\n\n"
               << " 1 - Train Data Sets\n\n"
-              << " 0 - Return\n\n"
-              << ">>  ";
+              << " 0 - Return\n\n";
+    
+    if (IsDataTypeNum == true)
+        printf(" [#] Numbers\n [ ] Fashion\n");
+    else
+        printf(" [ ] Numbers\n [#] Fashion\n");
+
+    printf(">> ");
 }
 
-void TestMenu_print(int *Label, int *PicNum, float ImgFeatures[], int *KNearest)
+void TestMenu_print(int *Label, int *PicNum, float ImgFeatures[], int *KNearest, bool IsDataTypeNum)
 {
     std::cout << "\n   ||   Testing Data Set   ||\n\n"
               << " 1 - Show Image\n\n"
@@ -110,16 +128,42 @@ void TestMenu_print(int *Label, int *PicNum, float ImgFeatures[], int *KNearest)
               << " 3 - Picture Number\n\n"
               << " 4 - K Nearest\n\n"
               << " 5 - Test\n\n"
-              << " 0 - Return\n\n"
-              << " # Label        : " << *Label << "\n"
-              << " # PicNum       : " << *PicNum << "\n"
-              << " # K Nearest    : " << *KNearest << "\n"
-              << "\n>> ";
+              << " 0 - Return\n\n";
+
+    if (IsDataTypeNum == true)
+        std::cout << " # Label      : " << *Label << "\n";
+    else
+        std::cout << " # Label      : " << interpolationDictionary(*Label) << "\n";
+
+    std::cout << " # PicNum     : " << *PicNum << "\n"
+              << " # K Nearest  : " << *KNearest << "\n\n";
+
+    if (IsDataTypeNum == true)
+        printf(" [#] Numbers\n [ ] Fashion");
+    else
+        printf(" [ ] Numbers\n [#] Fashion");
+
+    printf("\n>> ");
+}
+
+void Options_print(bool IsNum)
+{
+    std::cout << "\n   ||   Opstions Menu   ||\n\n"
+              << " 1 - Test Numbers\n\n"
+              << " 2 - Test Fashion Items\n\n"
+              << " 0 - Return\n\n";
+
+    if (IsNum == true)
+        printf(" [#] Numbers\n [ ] Fashion");
+    else
+        printf(" [ ] Numbers\n [#] Fashion");
+
+    printf("\n>>  ");
 }
 
 //         MENU(S)
 
-void ExploreMenu(float img[][IMAGE_SIZE])
+void ExploreMenu(float img[][IMAGE_SIZE], bool *IsDataTypeNum)
 {
     int Label{-1}, PicNum{-1}, filecount;
     int subaction, temp;
@@ -128,7 +172,7 @@ void ExploreMenu(float img[][IMAGE_SIZE])
     while (1)
     {
         ClearScreen();
-        ExploreMenu_print(&Label, &PicNum);
+        ExploreMenu_print(&Label, &PicNum, *IsDataTypeNum);
         std::cin >> subaction;
         subaction = CheckInput(subaction);
         switch (subaction)
@@ -150,6 +194,10 @@ void ExploreMenu(float img[][IMAGE_SIZE])
             break;
         case 2: // LABEL INPUT
             std::cout << " Input Label (0 - 9):  ";
+            if (*IsDataTypeNum == false) // FOR FASHION DATA SET
+                std::cout << "\n | 0 = AnkleBoot || 1 = Bag   || 2 = Coat    || 3 = Dress     || 4 = Pullover |"
+                          << "\n | 5 = Sandal    || 6 = Shirt || 7 = Sneaker || 8 = T-shirt   || 9 = Trouser  |"
+                          << "\n>>";
             std::cin.ignore(10000, '\n');
             std::cin >> temp;
             if (temp < 0 || temp > 9)
@@ -159,7 +207,15 @@ void ExploreMenu(float img[][IMAGE_SIZE])
                 break;
             }
             Label = temp;
-            image_path = interpolation("data\\mnist", "train", Label);
+            if (*IsDataTypeNum == true)
+            {
+                image_path = interpolation("data\\mnist", "train", std::to_string(Label));
+            }
+            else // FOR FASHION DATA SET
+            {
+                std::string FashionLabel = interpolationDictionary(Label);
+                image_path = interpolation("data\\fashion_mnist", "train", FashionLabel);
+            }
             filecount = file_count(image_path) - 1;
             PicNum = -1;
             break;
@@ -206,7 +262,7 @@ void ExploreMenu(float img[][IMAGE_SIZE])
     }
 }
 
-void TrainMenu(TrainSet Trainsets[], float img[IMAGE_SIZE][IMAGE_SIZE], int *IsDatabaseReady)
+void TrainMenu(TrainSet Trainsets[], float img[IMAGE_SIZE][IMAGE_SIZE], bool *IsDatabaseReady, bool *IsDataTypeNum)
 {
     int subaction;
     int count{0}, ChosenLabel;
@@ -216,7 +272,7 @@ void TrainMenu(TrainSet Trainsets[], float img[IMAGE_SIZE][IMAGE_SIZE], int *IsD
     while (1)
     {
         ClearScreen();
-        TrainMenu_print();
+        TrainMenu_print(*IsDataTypeNum);
         std::cin >> subaction;
         subaction = CheckInput(subaction);
         switch (subaction)
@@ -225,12 +281,15 @@ void TrainMenu(TrainSet Trainsets[], float img[IMAGE_SIZE][IMAGE_SIZE], int *IsD
         { // LOADING TRAIN SET
             for (int i = 0; i < 10; i++)
             {
-                image_path = interpolation("data\\mnist", "train", i);
+                if (*IsDataTypeNum == false) // FOR FASHION DATA SET
+                    image_path = interpolation("data\\fashion_mnist", "train", interpolationDictionary(i));
+                else
+                    image_path = interpolation("data\\mnist", "train", std::to_string(i));
                 Trainsets[i].Label = i;
-                for (int j = 0; j < IMAGE_DATABASE_LIMIT; j++)
+                for (int j = OFFSET_FOR_DATABASE; j < IMAGE_DATABASE_LIMIT + OFFSET_FOR_DATABASE; j++)
                 {
                     ImageLoad(image_path, j, img);
-                    BreakDown(img, Trainsets[i].imgs[j]);
+                    BreakDown(img, Trainsets[i].imgs[j - OFFSET_FOR_DATABASE]);
                 }
             }
 
@@ -242,7 +301,10 @@ void TrainMenu(TrainSet Trainsets[], float img[IMAGE_SIZE][IMAGE_SIZE], int *IsD
             for (int i = 0; i < 10; i++)
             {
                 CorrectCount = 0;
-                image_path = interpolation("data\\mnist", "test", i);
+                if (*IsDataTypeNum == false) // FOR FASHION DATA SET
+                    image_path = interpolation("data\\fashion_mnist", "train", interpolationDictionary(i));
+                else
+                    image_path = interpolation("data\\mnist", "train", std::to_string(i));
                 for (int j = 0; j < ACCURACY_IMAGE; j++)
                 {
                     ImageLoad(image_path, j, img);
@@ -301,10 +363,12 @@ void TrainMenu(TrainSet Trainsets[], float img[IMAGE_SIZE][IMAGE_SIZE], int *IsD
                 if (i % 5 == 0)
                     printf("\n");
 
-                printf("| #%d: %.2f% |", i, (CorrectCount * 100.0 / ACCURACY_IMAGE * 1.0));
+                printf(" | #%d: %.2f% |", i, (CorrectCount * 100.0 / ACCURACY_IMAGE * 1.0));
             }
-
-            *IsDatabaseReady = 1;
+            if (*IsDataTypeNum == false) // FOR FASHION DATA SET
+                std::cout << "\n\n | 0 = AnkleBoot || 1 = Bag   || 2 = Coat    || 3 = Dress     || 4 = Pullover |"
+                          << "\n | 5 = Sandal    || 6 = Shirt || 7 = Sneaker || 8 = T-shirt   || 9 = Trouser  |";
+            *IsDatabaseReady = true;
             Pause();
             break;
         }
@@ -326,7 +390,7 @@ void TrainMenu(TrainSet Trainsets[], float img[IMAGE_SIZE][IMAGE_SIZE], int *IsD
     }
 }
 
-void TestMenu(TrainSet Trainsets[], float img[][IMAGE_SIZE], int *IsDatabaseReady)
+void TestMenu(TrainSet Trainsets[], float img[][IMAGE_SIZE], bool *IsDatabaseReady, bool *IsDataTypeNum)
 {
     int subaction, temp;
     int Label{-1}, PicNum{-1}, filecount, ChosenLabel{-1}, KNearest{5};
@@ -336,7 +400,7 @@ void TestMenu(TrainSet Trainsets[], float img[][IMAGE_SIZE], int *IsDatabaseRead
     while (1)
     {
         ClearScreen();
-        TestMenu_print(&Label, &PicNum, ImageFeatures, &KNearest);
+        TestMenu_print(&Label, &PicNum, ImageFeatures, &KNearest, *IsDataTypeNum);
         std::cin >> subaction;
         subaction = CheckInput(subaction);
         switch (subaction)
@@ -354,6 +418,10 @@ void TestMenu(TrainSet Trainsets[], float img[][IMAGE_SIZE], int *IsDatabaseRead
             break;
         case 2: // LABEL INPUT
             std::cout << " Input Label (0 - 9):  ";
+            if (*IsDataTypeNum == false) // FOR FASHION DATA SET
+                std::cout << "\n | 0 = AnkleBoot || 1 = Bag   || 2 = Coat    || 3 = Dress     || 4 = Pullover |"
+                          << "\n | 5 = Sandal    || 6 = Shirt || 7 = Sneaker || 8 = T-shirt   || 9 = Trouser  |"
+                          << "\n>>";
             std::cin.ignore(10000, '\n');
             std::cin >> temp;
             if (temp < 0 || temp > 9)
@@ -361,10 +429,16 @@ void TestMenu(TrainSet Trainsets[], float img[][IMAGE_SIZE], int *IsDatabaseRead
                 std::cout << "\t!! Unavailable Label !!";
                 Pause();
                 break;
-                ;
             }
             Label = temp;
-            image_path = interpolation("data\\mnist", "test", Label);
+            if (*IsDataTypeNum == true)
+            {
+                image_path = interpolation("data\\mnist", "test", std::to_string(Label));
+            }
+            else // FOR FASHION DATA SET
+            {
+                image_path = interpolation("data\\fashion_mnist", "test", interpolationDictionary(Label));
+            }
             filecount = file_count(image_path);
             PicNum = -1;
             break;
@@ -410,7 +484,7 @@ void TestMenu(TrainSet Trainsets[], float img[][IMAGE_SIZE], int *IsDatabaseRead
                 printf("\n Please select an image first..");
                 Pause();
             }
-            else if (*IsDatabaseReady == 0)
+            else if (*IsDatabaseReady == false)
             {
                 std::cout << "\n Please use the train function first..";
                 Pause();
@@ -448,9 +522,10 @@ void TestMenu(TrainSet Trainsets[], float img[][IMAGE_SIZE], int *IsDatabaseRead
                     }
                 }
 
+                printf("\n\t\t\t ||  K nearest  ||  ");
                 for (int i = 0; i < KNearest; i++)
                 {
-                    if (i % 7 == 0)
+                    if (i % 8 == 0)
                     {
                         printf("\n");
                     }
@@ -467,16 +542,61 @@ void TestMenu(TrainSet Trainsets[], float img[][IMAGE_SIZE], int *IsDatabaseRead
                     }
                 }
                 printf("\n\n");
-                std::cout << " # Detected Label: " << ChosenLabel << "\t\n";
+                printf(" \t\t\t ||  Label Counts  ||  \n");
                 for (int i = 0; i < 10; i++)
                 {
                     printf("| #%d = %d |", i, LabelCounter[i]);
                 }
-                printf("\n");
+                if (*IsDataTypeNum == false) // FOR FASHION DATA SET
+                    std::cout << "\n\n | 0 = AnkleBoot || 1 = Bag   || 2 = Coat    || 3 = Dress     || 4 = Pullover |"
+                              << "\n | 5 = Sandal    || 6 = Shirt || 7 = Sneaker || 8 = T-shirt   || 9 = Trouser  |";
 
+                if (*IsDataTypeNum == true)
+                    std::cout << "\n\n\t # Detected Label: " << ChosenLabel << "\n";
+                else
+                    std::cout << "\n\n\t # Detected Label: " << interpolationDictionary(ChosenLabel) << "\n";
+
+                printf("\n");
 
                 Image_print(img);
             }
+            break;
+        case 0:
+            return;
+        default:
+            if (subaction != -1)
+            {
+                printf("\t!!  Wrong Input  !! \n");
+                Pause();
+            }
+            else
+            {
+                printf("\t!!  Wrong Input  !! \n");
+                std::cin.get();
+            }
+            break;
+        }
+    }
+}
+
+void Options(bool *IsDataTypeNum, bool *IsDatabaseReady)
+{
+    int subaction;
+    while (1)
+    {
+        ClearScreen();
+        Options_print(*IsDataTypeNum);
+        std::cin >> subaction;
+        subaction = CheckInput(subaction);
+        switch (subaction)
+        {
+        case 1:
+            *IsDataTypeNum = true;
+            *IsDatabaseReady = false;
+            break;
+        case 2:
+            *IsDataTypeNum = false;
+            *IsDatabaseReady = false;
             break;
         case 0:
             return;
@@ -734,4 +854,42 @@ void ArrayCompareSetPush(int StartPosition, int Length, CompareSets Array[])
         Array[i] = Array[i - 1];
         Array[i - 1] = temp;
     }
+}
+
+std::string interpolationDictionary(int Label)
+{
+    switch (Label)
+    {
+    case 0:
+        return "AnkleBoot";
+        break;
+    case 1:
+        return "Bag";
+        break;
+    case 2:
+        return "Coat";
+        break;
+    case 3:
+        return "Dress";
+        break;
+    case 4:
+        return "Pullover";
+        break;
+    case 5:
+        return "Sandal";
+        break;
+    case 6:
+        return "Shirt";
+        break;
+    case 7:
+        return "Sneaker";
+        break;
+    case 8:
+        return "T-shirt";
+        break;
+    case 9:
+        return "Trouser";
+        break;
+    }
+    return "NULL";
 }
